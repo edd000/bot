@@ -5,16 +5,19 @@ const MockAdapter = require('@bot-whatsapp/database/mock')
 const ExcelJS = require('exceljs')
 
 
-
 // Flujos de chat
 const flowSecundario = addKeyword(['siguiente']).addAnswer(['📄 Aquí tenemos el flujo secundario'])
 
 const flow1 = addKeyword(['1']).addAnswer(
     [
-        '📄 ',
-    ],
-    null,
-    null,
+        '📄 Infraestructura ',
+        'escribe el nombre del area'
+    ],    
+    { capture: true }, (ctx) => {            
+        console.log('Mensaje entrante:', ctx.body)
+        saveExcel(ctx.body)
+        
+    },
     [flowSecundario]
 )
 
@@ -47,8 +50,8 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
     .addAnswer('🙌 Hola bienvenido a este *Chatbot*')
     .addAnswer(
         [
-            'te comparto los siguientes links',
-            '👉 *1',
+            'selecciona el area de necesidad ',
+            '👉 *1 Infraestructura',
             '👉 *2',
             '👉 *3',
             '👉 *4'            
@@ -84,6 +87,7 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
             sheet = workbook.addWorksheet(worksheetName);
             sheet.columns = [
                 { header: 'Area', key: 'area', width: 25 },
+                { header: 'Equipo', key: 'equipo', width: 25 }
             ];
         }
       
@@ -120,7 +124,9 @@ const main = async () => {
     })
     data.push(
         {
-            area: flowPrincipal
+            area: flowPrincipal,
+            equipo: flow1
+            
         }
     )
 
