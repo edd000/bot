@@ -56,6 +56,7 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
+            saveExcel(ctx.body)
             
         },
         [flow1, flow2, flow3, flow4]
@@ -64,22 +65,45 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
 
 
 
-    const saveExcel = (data) => {
+    const saveExcel = async (data) => {
 
-        const workbook = new ExcelJS.Workbook()
-        const fileName = 'Registros.xlsx'
-        const sheet = workbook.addWorksheet('Registros')
-        const reColumns = [
-            { Headers: 'Area', key: 'area'}           
-        ]    
-        sheet.columns = reColumns
-        sheet.addRows(data)
-        workbook.xlsx.writeFile(fileName).then((e) => {
-            console.log('Creado satisfatoriamente');
+        const workbook = new ExcelJS.Workbook();
+  
+        // Intentar leer el archivo existente
+        const fileName = 'Registros2.xlsx';
+        let worksheetName = 'Registros2';
+        try {
+            await workbook.xlsx.readFile(fileName);
+        } catch (error) {
+            console.log('El archivo no existe, se creará uno nuevo.');
+        }
+
+        // Obtener la hoja de cálculo o crear una nueva si no existe
+        let sheet = workbook.getWorksheet(worksheetName);
+        if (!sheet) {
+            sheet = workbook.addWorksheet(worksheetName);
+            sheet.columns = [
+                { header: 'Area', key: 'area', width: 25 },
+            ];
+        }
+      
+        const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
+        const newRowNumber = lastRowNumber + 1;
+        const newRow = sheet.getRow(newRowNumber);
+        newRow.values = [data];
+        newRow.commit();
+
+        // Añadir nuevas filas
+        //sheet.addRows([{area:data}]);
+    
+        // Guardar el archivo
+        workbook.xlsx.writeFile(fileName)
+        .then(() => {
+            console.log('Guardado o actualizado satisfactoriamente');
         })
-        .catch(() => {
-            console.error("Error al crear el archivo");
-        })    
+        .catch((error) => {
+            console.error('Error al guardar o actualizar el archivo:', error);
+        });
     }
     
 
@@ -101,7 +125,7 @@ const main = async () => {
     )
 
     QRPortalWeb()
-    saveExcel(data)
+    
 }
 
 
@@ -110,4 +134,3 @@ const main = async () => {
 
 
 main()
-
