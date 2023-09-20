@@ -11,14 +11,14 @@ const flow1 = addKeyword(['1'])
             '📄 Infraestructura ',
             'Escribe el nombre del area'
         ],    
-        { capture: true }, (ctx) => {            
-            console.log('Mensaje entrante:', ctx.body)
+        { capture: true }, (ctx) => {  
+            console.log('Mensaje entrante:', ctx.body)                 
             saveExcel(ctx.body)
     })
     .addAnswer('escribe un breve descripcion del motivo',
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body)              
+            saveExcel(ctx.body)           
     }) 
     .addAnswer(['📄 Dale un valor de prioridad',    
             '👉 *1 Alta   Equipo o area sin funcionamiento',
@@ -90,48 +90,60 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
         ],
         {capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body)                    
+                             
         },
         [flow1, flow2, flow3] 
         )
 
-const saveExcel = async (data) => {
-        const workbook = new ExcelJS.Workbook();  
-        // Intentar leer el archivo existente
-        const fileName = 'Registros2.xlsx';
-        let worksheetName = 'Registros2';
-        try {
-            await workbook.xlsx.readFile(fileName);
-        } catch (error) {
-            console.log('El archivo no existe, se creará uno nuevo.');
-        }
-        // Obtener la hoja de cálculo o crear una nueva si no existe
-        let sheet = workbook.getWorksheet(worksheetName);
-        if (!sheet) {
-            sheet = workbook.addWorksheet(worksheetName);
-            sheet.columns = [
-                { header: 'Fecha.', key: 'fecha', width: 10, style: { numFmt: 'dd/mm/yyyy' } },
-                { header: 'Area', key: 'area', width: 25 },
-                { header: 'Equipo', key: 'equipo', width: 25 }
-            ];                  
-        }                  
-        const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
-        const newRowNumber = lastRowNumber + 1;
-        const newRow = sheet.getRow(newRowNumber);
-        newRow.values = [data];
-        newRow.commit();
-        // Añadir nuevas filas
-        //sheet.addRows([{area:data}]);    
-        // Guardar el archivo
-        workbook.xlsx.writeFile(fileName)           
-        .then(() => {
-            console.log('Guardado o actualizado satisfactoriamente');
-        })
-        .catch((error) => {
-            console.error('Error al guardar o actualizar el archivo:', error);
-        });
+
+
+
+
+// configuracion de excel.
+
+
+
+const saveExcel = async ([data]) => {
+    const workbook = new ExcelJS.Workbook();  
+    // Intentar leer el archivo existente
+    const fileName = 'Registros2.xlsx';
+    let worksheetName = 'Registros2';      
+    try {
+        await workbook.xlsx.readFile(fileName);
+    } catch (error) {
+        console.log('El archivo no existe, se creará uno nuevo.');
     }
+    // Obtener la hoja de cálculo o crear una nueva si no existe
+    let sheet = workbook.getWorksheet(worksheetName);
+    if (!sheet) {
+        sheet = workbook.addWorksheet(worksheetName);
+        sheet.columns = [
+            { header: 'Fecha', key: 'fecha', width: 25 },
+            { header: 'Area', key: 'area', width: 25 },
+            { header: 'Equipo', key: 'equipo', width: 25 },
+            { header: 'Motivo', key: 'motivo', width: 25 },
+            { header: 'Prioridad', key: 'prioridad', width: 25 }                                  
+    ];                        
+    }     
+    const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
+    const newRowNumber = lastRowNumber + 0;
+    const newRow = sheet.getRow(newRowNumber);
+    var dat= new Date();
+    sheet.addRow([dat,data]);  
+    newRow.commit();     
+    workbook.xlsx.writeFile(fileName)           
+    .then(() => {
+        console.log('Guardado o actualizado satisfactoriamente');
+    })
+    .catch((error) => {
+        console.error('Error al guardar o actualizar el archivo:', error);
+    });
+}
+
+
     
+
+// constante 
 
 const main = async () => {
     let data = []
