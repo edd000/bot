@@ -13,7 +13,7 @@ const flow1 = addKeyword(['1'])
         ],    
         { capture: true }, (ctx) => {  
             console.log('Mensaje entrante:', ctx.body)                 
-            saveExcel(ctx.body)
+            saveExcel1(ctx.body)
     })
     .addAnswer('escribe un breve descripcion del motivo',
         { capture: true }, (ctx) => {            
@@ -88,9 +88,9 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
             '👉 *2 Maquninas y equipos',
             '👉 *3 Sistemas'
         ],
-        {capture: true }, (ctx) => {            
-            console.log('Mensaje entrante:', ctx.body)
-                             
+        {capture: true }, (ctx1) => {            
+            console.log('Mensaje entrante:', ctx1.body)
+            saveExcel(ctx1.body)                 
         },
         [flow1, flow2, flow3] 
         )
@@ -103,7 +103,7 @@ const flowPrincipal = addKeyword(['Mantenimiento'])
 
 
 
-const saveExcel = async ([data]) => {
+const saveExcel = async (data) => {
     const workbook = new ExcelJS.Workbook();  
     // Intentar leer el archivo existente
     const fileName = 'Registros2.xlsx';
@@ -122,14 +122,14 @@ const saveExcel = async ([data]) => {
             { header: 'Area', key: 'area', width: 25 },
             { header: 'Equipo', key: 'equipo', width: 25 },
             { header: 'Motivo', key: 'motivo', width: 25 },
-            { header: 'Prioridad', key: 'prioridad', width: 25 }                                  
+            { header: 'Prioridad', key: 'prioridad', width: 25 }                                              
     ];                        
     }     
     const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
     const newRowNumber = lastRowNumber + 0;
-    const newRow = sheet.getRow(newRowNumber);
+    const newRow = sheet.getRow(newRowNumber);    
     var dat= new Date();
-    sheet.addRow([dat,data]);  
+    sheet.addRow([dat,"",data]);  
     newRow.commit();     
     workbook.xlsx.writeFile(fileName)           
     .then(() => {
@@ -140,7 +140,35 @@ const saveExcel = async ([data]) => {
     });
 }
 
-
+const saveExcel1 = async (data) => {
+    const workbook = new ExcelJS.Workbook();  
+    // Intentar leer el archivo existente
+    const fileName = 'Registros2.xlsx';
+    let worksheetName = 'Registros2';      
+    try {
+        await workbook.xlsx.readFile(fileName);
+    } catch (error) {
+        console.log('El archivo no existe, se creará uno nuevo.');
+    }
+    // Obtener la hoja de cálculo o crear una nueva si no existe
+    let sheet = workbook.getWorksheet(worksheetName);
+    if (!sheet) {
+        sheet = workbook.addWorksheet(worksheetName);                            
+    }     
+    const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
+    const newRowNumber = lastRowNumber -0;
+    const newRow = sheet.getRow(newRowNumber);
+    sheet.getRow().commit(1);         
+    sheet.addRow(["",data,"",]);  
+    newRow.commit();     
+    workbook.xlsx.writeFile(fileName)           
+    .then(() => {
+        console.log('Guardado o actualizado satisfactoriamente');
+    })
+    .catch((error) => {
+        console.error('Error al guardar o actualizar el archivo:', error);
+    });
+}
     
 
 // constante 
@@ -155,8 +183,7 @@ const main = async () => {
         flow: adapterFlow,
         provider: adapterProvider,
         database: adapterDB,
-    })
-    
+    })    
     QRPortalWeb()    
 }
 main()
