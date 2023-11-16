@@ -6,48 +6,53 @@ const ExcelJS = require('exceljs')
 const nodemailer = require('nodemailer')
 
 
+let area;
+let nombreSolicitante;
+let nombreArea;
+let descripcionMotivo;
+let prioridad;
+
+
 // Flujos de chat
 const flow1 = addKeyword(['1'])
-    .addAnswer('Nombre del solicitante',
-        { capture: true }, (ctx) => {  
-            console.log('Mensaje entrante:', ctx.body) 
-            saveExcel(ctx.body)    
-    
-        })
-    .addAnswer(
-        [
-            '📄 Infraestructura ',
-            'Escribe el nombre del area'
-        ],    
-        { capture: true }, (ctx) => {  
-            console.log('Mensaje entrante:', ctx.body) 
-            saveExcel(ctx.body)     
-            
+  .addAnswer('Nombre del solicitante',
+    { capture: true }, (ctx) => {
+      console.log('Mensaje entrante:', ctx.body);      
+      nombreSolicitante = ctx.body;
     })
-    .addAnswer('escribe un breve descripcion del motivo',
-        { capture: true }, (ctx) => {  
-            console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body) 
-            correoEnviado(ctx.body)
-                       
-    }) 
-    .addAnswer(['📄 Dale un valor de prioridad',    
-            '👉 *1 Alta   Equipo o area sin funcionamiento',
-            '👉 *2 Media  Equipo o area funcional pero con restrinciones',
-            '👉 *3 Baja   El quipo o area necesecitan un inspeccion'
-        ],
-        { capture: true }, (ctx) => {            
-            console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body)                   
+  .addAnswer(
+    [
+      '📄 Infraestructura ',
+      'Escribe el nombre del área'
+    ],
+    { capture: true }, (ctx) => {
+      console.log('Mensaje entrante:', ctx.body);      
+      nombreArea = ctx.body;
     })
-    .addAnswer("Tu solicitud ha sido recibida, ¡gracias!")    
+  .addAnswer('Escribe un breve descripción del motivo',
+    { capture: true }, (ctx) => {
+      console.log('Mensaje entrante:', ctx.body);     
+      descripcionMotivo = ctx.body;
+    })
+  .addAnswer(['📄 Dale un valor de prioridad',
+    '👉 *1 Alta   Equipo o área sin funcionamiento',
+    '👉 *2 Media  Equipo o área funcional pero con restricciones',
+    '👉 *3 Baja   El equipo o área necesitan una inspección'
+  ],
+    { capture: true }, (ctx) => {
+      console.log('Mensaje entrante:', ctx.body);
+      saveExcel(ctx.body);
+      correoEnviado(ctx.body);
+      prioridad = ctx.body;
+    })
+  .addAnswer("Tu solicitud ha sido recibida, ¡gracias!");
+
 
 const flow2 = addKeyword(['2'])
     .addAnswer('Nombre del solicitante',
             { capture: true }, (ctx) => {  
                 console.log('Mensaje entrante:', ctx.body) 
-                saveExcel(ctx.body)    
-    
+                nombreSolicitante =ctx.body;    
         })
     .addAnswer(
         [
@@ -56,14 +61,14 @@ const flow2 = addKeyword(['2'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body) 
-            correoEnviado(ctx.body)
+            nombreArea =ctx.body;
+            
                    
     })
     .addAnswer('escribe un breve descripcion del motivo',
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body) 
+           descripcionMotivo = ctx.body; 
                        
     }) 
     .addAnswer(['📄 Dale un valor de prioridad',    
@@ -73,7 +78,9 @@ const flow2 = addKeyword(['2'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body)                    
+            prioridad =ctx.body
+            saveExcel(ctx.body)
+            correoEnviado(ctx.body)                    
     })
     .addAnswer("Tu solicitud ha sido recibida, ¡gracias!")           
 
@@ -81,7 +88,7 @@ const flow3 = addKeyword(['3'])
 .addAnswer('Nombre del solicitante',
     { capture: true }, (ctx) => {  
         console.log('Mensaje entrante:', ctx.body) 
-        saveExcel(ctx.body)    
+        nombreSolicitante = ctx.body;   
 
     })
     .addAnswer(
@@ -91,13 +98,13 @@ const flow3 = addKeyword(['3'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body) 
-            correoEnviado(ctx.body)      
+            nombreArea = ctx.body;
+                  
     })
     .addAnswer('escribe un breve descripcion del motivo',
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body) 
+            descripcionMotivo = ctx.body;
                         
     }) 
     .addAnswer(['📄 Dale un valor de prioridad',    
@@ -107,7 +114,9 @@ const flow3 = addKeyword(['3'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            saveExcel(ctx.body)                    
+            saveExcel(ctx.body) 
+            correoEnviado(ctx.body);
+            prioridad = ctx.body;                   
     })
     .addAnswer("Tu solicitud ha sido recibida, ¡gracias!")       
     
@@ -126,8 +135,8 @@ const flow3 = addKeyword(['3'])
         const respuestas = ctx1.body.split(' ');
         const respuestasValidas = respuestas.filter(element => element.match(/[123]/));
         if (respuestasValidas.length > 0) {
-          console.log('Mensaje entrante:', respuestasValidas);
-          saveExcel(respuestasValidas);
+          console.log('Mensaje entrante:', respuestasValidas);  
+          area =ctx1.body        
         } else {
           console.log('Respuesta no válida');
         }
@@ -136,10 +145,7 @@ const flow3 = addKeyword(['3'])
     );
 
 
-  
-      
-
-    
+ 
         
 // configuracion de excel.
 const saveExcel = async (data) => {
@@ -159,6 +165,7 @@ const saveExcel = async (data) => {
         sheet.columns = [
             { header: 'Fecha', key: 'fecha', width: 25 },
             { header: 'Area', key: 'area', width: 25 },
+            { header: 'Nombre', key: 'nombre', width: 25 },           
             { header: 'Equipo', key: 'equipo', width: 25 },
             { header: 'Motivo', key: 'motivo', width: 25 },
             { header: 'Prioridad', key: 'prioridad', width: 25 }                                              
@@ -168,7 +175,7 @@ const saveExcel = async (data) => {
     const newRowNumber = lastRowNumber + 0;
     const newRow = sheet.getRow(newRowNumber);    
     var dat= new Date();
-    sheet.addRow([dat,data]);  
+    sheet.addRow([dat,area,nombreSolicitante,nombreArea,descripcionMotivo,prioridad]);  
     newRow.commit();     
     workbook.xlsx.writeFile(fileName)           
     .then(() => {
@@ -194,8 +201,10 @@ let transporter = nodemailer.createTransport({
 let mailOptions = {
     from: 'mantenimiento@intercalco.com',
     to: 'mantenimiento@intercalco.com',
-    subject: 'Solicitud nueva',
-    text: data
+    subject: nombreSolicitante,
+    text: 
+    `${nombreArea}\n${descripcionMotivo}`
+        
 };
 
 // Enviar el correo electrónico
@@ -206,16 +215,13 @@ transporter.sendMail(mailOptions, (error, info) => {
         console.log('Email sent:', info.messageId);
     }
 });
-
-
-
 }
 
-    
+  
 
 // constante 
 const main = async () => {
-    let data = []
+    let data = []   
     const adapterDB = new MockAdapter()
     const adapterFlow = createFlow([flowPrincipal])
     const adapterProvider = createProvider(BaileysProvider)
