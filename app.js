@@ -17,7 +17,7 @@ let prioridad;
 const flow1 = addKeyword(['1'])
   .addAnswer('Nombre del solicitante',
     { capture: true }, (ctx) => {
-      console.log('Mensaje entrante:', ctx.body);      
+      console.log('Mensaje entrante:', ctx.body);
       nombreSolicitante = ctx.body;
     })
   .addAnswer(
@@ -26,27 +26,26 @@ const flow1 = addKeyword(['1'])
       'Escribe el nombre del área'
     ],
     { capture: true }, (ctx) => {
-      console.log('Mensaje entrante:', ctx.body);      
+      console.log('Mensaje entrante:', ctx.body);
       nombreArea = ctx.body;
     })
   .addAnswer('Escribe un breve descripción del motivo',
     { capture: true }, (ctx) => {
-      console.log('Mensaje entrante:', ctx.body);     
+      console.log('Mensaje entrante:', ctx.body);
       descripcionMotivo = ctx.body;
     })
-  .addAnswer(['📄 Dale un valor de prioridad',
-    '👉 *1 Alta   Equipo o área sin funcionamiento',
-    '👉 *2 Media  Equipo o área funcional pero con restricciones',
-    '👉 *3 Baja   El equipo o área necesitan una inspección'
-  ],
-    { capture: true }, (ctx) => {
-      console.log('Mensaje entrante:', ctx.body);
-      saveExcel(ctx.body);
-      correoEnviado(ctx.body);
-      prioridad = ctx.body;
-    })
-  .addAnswer("Tu solicitud ha sido recibida, ¡gracias!");
-
+  .addAnswer(['📄 Dale un valor de prioridad',    
+    '👉 *1 Alta   Equipo o area sin funcionamiento',
+    '👉 *2 Media  Equipo o area funcional pero con restrinciones',
+    '👉 *3 Baja   El equipo o area necesitan una inspeccion'
+],
+{ capture: true }, (ctx) => {            
+    console.log('Mensaje entrante:', ctx.body)
+    prioridad =ctx.body
+    saveExcel(ctx.body)
+    correoEnviado(ctx.body)                    
+})
+.addAnswer("Tu solicitud ha sido recibida, ¡gracias!")    
 
 const flow2 = addKeyword(['2'])
     .addAnswer('Nombre del solicitante',
@@ -61,27 +60,25 @@ const flow2 = addKeyword(['2'])
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
-            nombreArea =ctx.body;
-            
-                   
-    })
+            nombreArea =ctx.body;                   
+        })
     .addAnswer('escribe un breve descripcion del motivo',
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
            descripcionMotivo = ctx.body; 
                        
-    }) 
+        }) 
     .addAnswer(['📄 Dale un valor de prioridad',    
             '👉 *1 Alta   Equipo o area sin funcionamiento',
             '👉 *2 Media  Equipo o area funcional pero con restrinciones',
-            '👉 *3 Baja   El quipo o area necesecitan un inspeccion'
+            '👉 *3 Baja   El equipo o area necesitan una inspeccion'
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
             prioridad =ctx.body
             saveExcel(ctx.body)
             correoEnviado(ctx.body)                    
-    })
+        })
     .addAnswer("Tu solicitud ha sido recibida, ¡gracias!")           
 
 const flow3 = addKeyword(['3'])
@@ -110,7 +107,7 @@ const flow3 = addKeyword(['3'])
     .addAnswer(['📄 Dale un valor de prioridad',    
             '👉 *1 Alta   Equipo o area sin funcionamiento',
             '👉 *2 Media  Equipo o area funcional pero con restrinciones',
-            '👉 *3 Baja   El quipo o area necesecitan un inspeccion'
+            '👉 *3 Baja   El equipo o area necesitan una inspeccion'
         ],
         { capture: true }, (ctx) => {            
             console.log('Mensaje entrante:', ctx.body)
@@ -127,7 +124,7 @@ const flow3 = addKeyword(['3'])
       [
         'selecciona el area de necesidad ',
         '👉 *1 Infraestructura',
-        '👉 *2 Maquninas y equipos',
+        '👉 *2 Maquinas y equipos',
         '👉 *3 Sistemas',
       ],
       {capture: true},
